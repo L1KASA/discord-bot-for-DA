@@ -1,0 +1,5 @@
+.env
+mediabase.db
+venv
+main.py
+database.py
