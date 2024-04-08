@@ -3,3 +3,6 @@ mediabase.db
 venv
 main.py
 database.py
+media_page.html
+search_media.html
+__pycache__
