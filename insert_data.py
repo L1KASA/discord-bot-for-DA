@@ -10,7 +10,7 @@ def fetch_data():
         cursor = db.cursor()
 
         # Выполняем SQL-запрос для извлечения данных из базы
-        cursor.execute('SELECT MEDIA_NAME, IMAGE FROM MEADIABASE')
+        cursor.execute('SELECT MEDIA_NAME, IMAGE, KINOPOISK_RATING, GENRE, COUNTRY, SINCE FROM MEADIABASE')
 
         # Получаем результаты запроса
         data = cursor.fetchall()
@@ -20,7 +20,10 @@ def fetch_data():
 
         # Перебираем записи из базы
         for record in data:
-            name, image = record
+            name, image, kinopoisk_rating, genre_str, country_str, since = record
+            genre = genre_str.split(',') if genre_str else []  # Преобразуем строку обратно в список
+            country = country_str.split(',') if country_str else []  # Преобразуем строку обратно в список
+            
             if image is None:
                 # Если изображение отсутствует, используем метод p(name)
                 print(name)
@@ -38,7 +41,14 @@ def fetch_data():
             else:
                 image_url = image
             # Добавляем данные в массив результатов
-            result.append({"name": name, "image": image_url})
+            result.append({
+                "name": name,
+                "image": image_url,
+                "kinopoisk_rating": kinopoisk_rating,
+                "genre": genre,
+                "country": country,
+                "since": since
+            })
 
         # Закрываем соединение с базой данных
         cursor.close()
@@ -49,12 +59,13 @@ def fetch_data():
         print(f"Произошла ошибка: {e}")
         return None
 
+
 # Пример использования функции fetch_data
 def main():
     data = fetch_data()
     if data is not None:
         for item in data:
-            print(f"Name: {item['name']}, Image: {item['image']}")
+            print(item['genre'])
     else:
         print("Не удалось получить данные из базы данных")
 

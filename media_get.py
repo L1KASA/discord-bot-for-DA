@@ -13,12 +13,31 @@ def parse_html_search_media(name, filename="search_media.html"):
 
         if allNews:
             allNews = allNews.get('data-id')
-            print(allNews)
+            #print(allNews)
         else:
             print("parse_html_search_media")
             return None
         return allNews
 
+def search_image(soup):
+    image_element = soup.findAll('div', class_='styles_column__r2MWX styles_md_6__XDxd6 styles_lg_8__7Mdim styles_column__5dEFP')
+    if image_element:
+        image_element = image_element[0].find('img', class_='image')
+        if image_element:
+            image_url = image_element.get('src')
+            return image_url
+        else:
+            print("Картинка не найдена")
+            return None
+    else:
+        print("Не удалось найти элемент с картинкой")
+        return None
+
+
+def get_rating(soup):
+    return(soup.find('div', class_='styles_valueBlock___nWKb').find('span', class_='film-rating-value') \
+            .find('span').text)
+    
 def parse_html_media_page(name, filename="media_page.html"):
     media_page.write_to_html(name)
     with open(filename, "r", encoding="utf-8") as f:
@@ -26,82 +45,58 @@ def parse_html_media_page(name, filename="media_page.html"):
     
         soup = BeautifulSoup(contents, 'lxml')
 
-# картинки
-        allNews = soup.findAll('div', class_='styles_column__r2MWX styles_md_6__XDxd6 styles_lg_8__7Mdim styles_column__5dEFP')[0] \
-            .find('img', class_='image')#.get('src') #\
-        if allNews:
-            allNews = allNews.get('src')
-            
-        else:
-            print("Картинка не найдена")
+        image_url = search_image(soup)
+        if not image_url:
+            print("Не удалось найти URL изображения")
             return None
 
-# рейтинг
-        #allNews = soup.find('div', class_='styles_root__4VfvJ styles_basicInfoSection__EiD2J') \
-        #    .findAll('div', class_='styles_root__2kxYy styles_topLine__xigow')[0] #\
-        #
-        #a = allNews.find('div', class_='styles_column__r2MWX styles_md_6__XDxd6 styles_lg_6__eGSDb') \
-        #        .find('span', class_='styles_ratingNeutral__meu3w')
-        #print(a.text)
-        
-# ищем год и прочую инфу
-        #allNews = soup.find('div', class_='styles_root__4VfvJ styles_basicInfoSection__EiD2J') \
-        #    .findAll('div', class_='styles_root__2kxYy styles_topLine__xigow')[1] #\
-            #.find('div', class_='styles_rowDark__ucbcz styles_row__da_RK')#.get('data-id')
-        #print(allNews)
+        rating = get_rating(soup)
+        genre = []
+        country = []
+        year = None 
 
-        #filteredNews = []
+        first = soup.findAll('div', class_='styles_root__2kxYy styles_topLine__xigow')[1].find('div', class_='styles_column__r2MWX styles_md_11__UdIH_ styles_lg_15__Ai53P') \
+            .find('div').findAll('div')
+        for data in first:
+            if "Страна" in data.text and country == []:
+                country_element  = data.findAll('a')#.find('div')
 
+                for i in country_element:
+                    country.append(i.text)
 
-        #a = allNews.find('div', class_='styles_column__r2MWX styles_md_11__UdIH_ styles_lg_15__Ai53P') \
-        #        .findAll('div', class_='styles_valueDark__BCk93 styles_value__g6yP4')
-        #
-        #for data in a:
-        #    if data.find('a'):
-        #    #a = data.find('div', class_='styles_column__r2MWX styles_md_11__UdIH_ styles_lg_15__Ai53P') \
-        #    #    .findAll('div', class_='styles_titleDark___tfMR styles_title__b1HVo')
-        #        #filteredNews.append(data.text)
-        #        print(data.text)
+            if "Жанр" in data.text and genre == []:
+                genre_element = data.find('div', class_='styles_root__5PEXQ').find('div').findAll('a')
+                for i in genre_element:
+                   genre.append(i.text)
 
+            if "Год производства" and year == None:
+                year = data.find('a').text
+        if not image_url or not rating or not genre or not country or not year:
+            print("Не удалось найти все необходимые данные")
+            return None
+        return {
+            'image_url': image_url,
+            'rating': rating,
+            'genre': genre,
+            'country': country,
+            'year': year
+        }
 
-        #    print()
-        #print(filteredNews)
-        #for data in filteredNews:
-        #    if data.find('ul', class_='links'):
-        #        #filteredNews.append(data.text)
-        #        print(data.text)
-        #print(filteredNews)
-        #for data in allNews:
-        #    if data.find('ul', class_='links') is not None:
-        #        filteredNews.append(data.text)
-        #soup = BeautifulSoup('search_media.html', 'html.parser')
-        #return allNews
-        return allNews if allNews else None
-
-#media_page.write_to_html(str(5212441))
-#parse_html_media_page()
-#parse_html_media_page(str(parse_html_search_media('Ривердейл')))
-
-#def get_img(name):
-#    №parse_html_media_page(str(parse_html_search_media(str(name))))
 def get_img(name):
     try:
         result = parse_html_media_page(str(parse_html_search_media(str(name))))
-        print(result)
         if result is None:
             print("Картинка не найдена")
         else:
             print(result)
-            return result
+            #return
             
     except Exception as e:
         print(f"Произошла ошибка при выполнении parse_html_media_page: {e}")
+        return
         #result = 'https://avatars.mds.yandex.net/get-kinopoisk-image/1900788/12835c3a-225e-4791-a0fd-f60dc50080de/1920x'
 
+print(parse_html_media_page(parse_html_search_media('Сяня')))
 
-#get_img("Шоу")
-#parse_html_media_page(parse_html_search_media('Во все тяжкие'))
-
-
-get_img("Фишер")
+#get_img("Сяня")
 
