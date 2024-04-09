@@ -85,18 +85,19 @@ def parse_html_media_page(name, filename="media_page.html"):
 def get_img(name):
     try:
         result = parse_html_media_page(str(parse_html_search_media(str(name))))
+        
         if result is None:
             print("Картинка не найдена")
         else:
-            print(result)
-            #return
+            #print(result)
+            return result
             
     except Exception as e:
         print(f"Произошла ошибка при выполнении parse_html_media_page: {e}")
         return
         #result = 'https://avatars.mds.yandex.net/get-kinopoisk-image/1900788/12835c3a-225e-4791-a0fd-f60dc50080de/1920x'
 
-print(parse_html_media_page(parse_html_search_media('Сяня')))
+#print(parse_html_media_page(parse_html_search_media('Сяня')))
 
-#get_img("Сяня")
+get_img("Игра престолов")
 
