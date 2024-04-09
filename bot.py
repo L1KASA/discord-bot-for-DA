@@ -93,6 +93,33 @@ async def select_meadiabase(ctx):
     await cursor.close()
     await db.close()
 
+@bot.slash_command(name='update_rating', description='Название медиа оценка', guild_ids=guild_ids)
+async def update_rating(ctx, media_name: str, new_rating: float):
+    db = await aiosqlite.connect("mediabase.db")
+    # Создаем курсор
+    cursor = await db.cursor()
+
+    await cursor.execute('''
+            UPDATE MEADIABASE
+            SET YOUR_RATING = ?
+            WHERE MEDIA_NAME = ?
+        ''', (new_rating, media_name))
+    
+    # Выполняем SQL-запрос
+    await cursor.execute('SELECT * FROM MEADIABASE')
+    
+    # Получаем результаты запроса
+    data = await cursor.fetchall()
+
+    await db.commit()
+
+    await ctx.send(f"Рейтинг для {media_name} успешно обновлен до {new_rating}")
+
+    await cursor.close()
+    await db.close()
+
+
+
 class Modal_For_Add(discord.ui.Modal):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

@@ -78,27 +78,15 @@ def main():
     data = fetch_data()
     if data is not None:
         for item in data:
-            print(item['genre'])
+            print("Name:", item["name"])
+            print("Image URL:", item["image"])
+            print("Kinopoisk Rating:", item["kinopoisk_rating"])
+            print("Genre:", item["genre"])
+            print("Country:", item["country"])
+            print("Since:", item["since"])
+            print("-----------------------")
     else:
         print("Не удалось получить данные из базы данных")
-
-#def main():
-#    # Получаем все данные из базы данных
-#    data = fetch_data()
-#
-#    # Проверяем, получены ли данные
-#    if data:
-#        # Выводим данные из базы
-#        for item in data:
-#            print("Name:", item["name"])
-#            print("Image URL:", item["image"])
-#            print("Kinopoisk Rating:", item["kinopoisk_rating"])
-#            print("Genre:", item["genre"])
-#            print("Country:", item["country"])
-#            print("Since:", item["since"])
-#            print("-----------------------")
-#    else:
-#        print("Ошибка: Не удалось получить данные из базы данных")
 
 if __name__ == "__main__":
     main()
